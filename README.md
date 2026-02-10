@@ -42,3 +42,25 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
 ## Delete connector mysql
 curl -X DELETE localhost:8083/connectors/mysql-connector
 
+## Đăng ký Debezium Connector cho MySQL (************)
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{
+  "name": "mysql-connector-db-****-70",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "************",
+    "database.port": "3306",
+    "database.user": "********",
+    "database.password": "********",
+    "database.server.id": "184070",
+    "topic.prefix": "mysql_db_****_70",
+    "database.include.list": "****",
+    "table.include.list": "****.to_khai_truc_tuyen, ****.*****_hsdd_giay_to, ****.*****_tai_khoan",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.mysql",
+    "include.schema.changes": "true",
+    "database.history.skip.unparseable.ddl": "true",
+    "database.allowPublicKeyRetrieval": "true",
+    "database.ssl.mode": "disabled",
+    "snapshot.mode": "initial"
+  }
+}'
