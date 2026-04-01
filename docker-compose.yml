@@ -9,6 +9,8 @@ services:
       - POSTGRES_USER=admin_postgres
       - POSTGRES_PASSWORD=password_postgres
       - POSTGRES_DB=inventory_db_postgres
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
 
   # Database 2: MySQL
   mysql:
@@ -19,6 +21,8 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password_mysql_root
       - MYSQL_DATABASE=inventory_db_mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
     # Cấu hình Binlog trực tiếp qua command để Debezium đọc được
     command: 
       - --gtid_mode=ON
@@ -32,15 +36,16 @@ services:
     container_name: kafka
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       - CLUSTER_ID=5Y2s9BE9TTe967ue4E7v7g
       - KAFKA_NODE_ID=1
       - KAFKA_PROCESS_ROLES=broker,controller
-      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,EXTERNAL://:29092,CONTROLLER://:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       - KAFKA_SKIP_KRAFT_STORAGE_CHECK=true
 
   connect:
@@ -74,3 +79,7 @@ services:
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
       - KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME=debezium
       - KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS=http://connect:8083
+
+volumes:
+  postgres_data:
+  mysql_data:
